@@ -15,11 +15,10 @@ public class ReactionTimer implements ActionListener {
     private Long stopTime;
     private int sum = 0;
     private int numberOfRuns = 0;
-    private Thread thread;
     private ReactionStates activeState = ReactionStates.STARTING;
 
     ReactionTimer() {
-        frame = new JFrame(activeState.name());
+        frame = new JFrame("Reaction Time Test");
         startButton = new JButton("Press to start Reaction Time Test");
         reactButton = new JButton();
         average = new JLabel("Average Reaction Time: 0 ms");
@@ -69,9 +68,8 @@ public class ReactionTimer implements ActionListener {
                 return;
             }
             activeState = ReactionStates.WAITING;
-            frame.setTitle(activeState.name());
             this.changeTextAndColor("Waiting...", Color.YELLOW, Color.BLACK);
-            thread = new Thread(new Runnable() {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     waitingPeriod();
@@ -79,28 +77,23 @@ public class ReactionTimer implements ActionListener {
                         return;
                     }
                     activeState = ReactionStates.REACTING;
-                    frame.setTitle(activeState.name());
                     if (!activeState.equals(ReactionStates.REACTING)) {
                         return;
                     }
                     ReactionTimer.this.changeTextAndColor("Click!", Color.GREEN, Color.BLACK);
                     startTime = System.currentTimeMillis();
                 }
-            });
-            thread.start();
+            }).start();
         } else if (e.getSource() == reactButton) {
-            System.out.println(activeState.name());
             if (!activeState.canChangeReactionState(ReactionStates.REACTED)) {
                 if (!activeState.canChangeReactionState(ReactionStates.ERROR)) {
                     return;
                 }
                 activeState = ReactionStates.ERROR;
-                frame.setTitle(activeState.name());
                 this.changeTextAndColor("Error: Clicked too early", Color.RED, Color.WHITE);
                 return;
             }
             activeState = ReactionStates.REACTED;
-            frame.setTitle(activeState.name());
             stopTime = System.currentTimeMillis();
             long reactionTime = stopTime - startTime;
             startTime = null;
